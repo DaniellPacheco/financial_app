@@ -9,3 +9,122 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id               String             @id @default(uuid())
+  username         String             @unique
+  name             String
+  email            String             @unique
+  phone            String             @unique
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  userPreferences  UserPreferences?
+  manager          UserManagement[]   @relation("Manager")
+  managed          UserManagement[]   @relation("Managed")
+  financialAccount FinancialAccount[]
+  Revenue          Revenue[]
+  Expense          Expense[]
+}
+
+model UserPreferences {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String   @unique
+  coinType   CoinType @relation(fields: [coinTypeId], references: [id])
+  coinTypeId String
+}
+
+model UserManagement {
+  id        String   @id @default(uuid())
+  manager   User     @relation("Manager", fields: [managerId], references: [id])
+  managerId String
+  managed   User     @relation("Managed", fields: [managedId], references: [id])
+  managedId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FinancialAccount {
+  id                     String                @id @default(uuid())
+  User                   User                  @relation(fields: [userId], references: [id])
+  userId                 String
+  institutionName        String
+  accountType            FinancialAccountType? @relation(fields: [financialAccountTypeId], references: [id])
+  financialAccountTypeId String?
+  balance                Decimal
+  coinType               CoinType              @relation(fields: [coinTypeId], references: [id])
+  coinTypeId             String
+  accountNumber          Int
+  creditLimit            Decimal
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+}
+
+model FinancialAccountType {
+  id               String             @id @default(uuid())
+  name             String             @unique
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  FinancialAccount FinancialAccount[]
+}
+
+model CoinType {
+  id               String             @id @default(uuid())
+  name             String             @unique
+  currentValue     Decimal
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  FinancialAccount FinancialAccount[]
+  UserPreferences  UserPreferences[]
+}
+
+model Revenue {
+  id                String          @id @default(uuid())
+  user              User            @relation(fields: [userId], references: [id])
+  userId            String
+  name              String
+  category          RevenueCategory @relation(fields: [revenueCategoryId], references: [id])
+  revenueCategoryId String
+  value             Decimal
+  recurrent         Boolean         @default(false)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+model RevenueCategory {
+  id        String    @id @default(uuid())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Revenue   Revenue[]
+}
+
+model Expense {
+  id                String          @id @default(uuid())
+  user              User            @relation(fields: [userId], references: [id])
+  userId            String
+  name              String
+  value             Decimal
+  paymentMethod     PaymentMethod   @relation(fields: [paymentMethodId], references: [id])
+  paymentMethodId   String
+  category          ExpenseCategory @relation(fields: [expenseCategoryId], references: [id])
+  expenseCategoryId String
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+model PaymentMethod {
+  id        String    @id @default(uuid())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Expense   Expense[]
+}
+
+model ExpenseCategory {
+  id        String    @id @default(uuid())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Expense   Expense[]
+}
