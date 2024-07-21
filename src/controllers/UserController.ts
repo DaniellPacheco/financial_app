@@ -22,4 +22,20 @@ export class UserController {
         res.status(200).json(user);
     }
 
+    async create(req: Request, res: Response) {
+        const { email, name, password } = req.body;
+
+        console.log( email, name, password);
+        
+        const userRepository = new UserRepository();
+        const userService = new UserService(userRepository);
+
+        const user = await userService.create(email, name, password);
+        
+        res.status(201).json({
+            message: "User created successfully",
+            user
+        });
+    }
+
 }

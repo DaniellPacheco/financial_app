@@ -15,7 +15,19 @@ export class UserRepository {
         return await this.prisma.user.findUnique({ where: { id }});
     }
 
-    async create() {}
+    async findByEmail(email: string) {
+        return await this.prisma.user.findUnique({ where: { email }});
+    }
+
+    async create(email: string, name: string, password: string) {
+        return await this.prisma.user.create({
+            data: {
+                email,
+                name,
+                password,
+            }
+        });
+    }
 
     async uppdate() {}
 

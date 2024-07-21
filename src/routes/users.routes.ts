@@ -8,5 +8,6 @@ const userController = new UserController();
 
 userRoutes.get('/', userController.index);
 userRoutes.get('/:id', userController.show);
+userRoutes.post('/create', userController.create);
 
 export { userRoutes };
