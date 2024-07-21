@@ -1,0 +1,127 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+model User {
+  id               Int                @id @default(autoincrement())
+  email            String             @unique
+  name             String
+  role             Role               @default(CUSTOMER)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @default(now()) @updatedAt
+  FinancialAccount FinancialAccount[]
+  Revenue          Revenue[]
+  Expense          Expense[]
+  UserPreferences  UserPreferences?
+}
+
+model UserPreferences {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int      @unique
+  coinType   CoinType @relation(fields: [coinTypeId], references: [id])
+  coinTypeId Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+}
+
+model FinancialAccount {
+  id                     Int                  @id @default(autoincrement())
+  user                   User                 @relation(fields: [userId], references: [id])
+  userId                 Int
+  institutionName        String
+  accountType            FinancialAccountType @relation(fields: [financialAccountTypeId], references: [id])
+  financialAccountTypeId Int
+  balance                Decimal
+  coinType               CoinType             @relation(fields: [coinTypeId], references: [id])
+  coinTypeId             Int
+  accountNumber          String
+  creditLimit            Decimal
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @default(now()) @updatedAt
+}
+
+model FinancialAccountType {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @default(now()) @updatedAt
+  FinancialAccount FinancialAccount[]
+}
+
+model CoinType {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique
+  currentValue     Decimal
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @default(now()) @updatedAt
+  FinancialAccount FinancialAccount[]
+  UserPreferences  UserPreferences[]
+}
+
+model Revenue {
+  id         Int             @id @default(autoincrement())
+  user       User            @relation(fields: [userId], references: [id])
+  userId     Int
+  name       String
+  category   RevenueCategory @relation(fields: [categoryId], references: [id])
+  categoryId Int
+  value      Decimal
+  recurrent  Boolean         @default(false)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @default(now()) @updatedAt
+}
+
+model RevenueCategory {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  Revenue   Revenue[]
+}
+
+model Expense {
+  id                Int             @id @default(autoincrement())
+  user              User            @relation(fields: [userId], references: [id])
+  userId            Int
+  name              String
+  value             Decimal
+  paymentMethod     PaymentMethod   @relation(fields: [paymentMethodId], references: [id])
+  paymentMethodId   Int
+  expenseCategory   ExpenseCategory @relation(fields: [expenseCategoryId], references: [id])
+  expenseCategoryId Int
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @default(now()) @updatedAt
+}
+
+model PaymentMethod {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  Expense   Expense[]
+}
+
+model ExpenseCategory {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  Expense   Expense[]
+}
