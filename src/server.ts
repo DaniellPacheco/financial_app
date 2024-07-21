@@ -1,18 +1,17 @@
-import express from 'express'
+import express from 'express';
+import cors from 'cors';
 
-import { Router, Request, Response } from 'express';
+import { routes } from './routes/index';
 
 const app = express();
+app.use(cors({
+  origin: ["http://localhost:5173"],
+  credentials: true,
+}));
 
-const route = Router()
+app.use(routes);
 
-app.use(express.json())
+app.use(express.json());
 
-route.get('/', (req: Request, res: Response) => {
-  res.json({ message: 'hello world with Typescript' })
-})
-
-app.use(route)
-
-
-app.listen(3333, () => 'server running on port 3333')
+const PORT = process.env.PORT || 3333;
+app.listen(3333, () => console.log(`server running on http://localhost:${PORT}`));
