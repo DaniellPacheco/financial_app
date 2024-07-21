@@ -8,7 +8,10 @@ export class UserService {
     }
 
     async findAll() {
-        const users = await this.userRepository.findAll();
-        return users;
+        return await this.userRepository.findAll();
+    }
+
+    async findById(id: number) {
+        return await this.userRepository.findById(id);
     }
 }
